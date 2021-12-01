@@ -1,5 +1,6 @@
 const Movie = require('../models/movie');
-const { NotFoundError, RequestError } = require('../errors/not-found-err');
+const NotFoundError = require('../errors/not-found-err');
+const RequestError = require('../errors/request-err');
 
 const getMovies = (req, res, next) => Movie.find({})
   .then((movies) => res.status(200).send(movies))
@@ -9,10 +10,26 @@ const getMovies = (req, res, next) => Movie.find({})
 
 const delMovie = (req, res, next) => {
   const { movieId } = req.params;
-  return Movie.deleteMany({ movieId })
+  Movie.find({ movieId })
     .then((movie1) => {
       if (movie1) {
-        return res.status(200).send(movie1);
+        if (movie1[0].owner.toString() === req.user._id) {
+          return Movie.findByIdAndRemove(movie1[0]._id.toString())
+            .then((movie2) => {
+              if (movie2) {
+                return res.status(200).send(movie2);
+              }
+              throw new NotFoundError('Ошибка при удалении Movie. Нет карточки с таким id');
+            })
+            .catch((err) => {
+              if (err.name === 'CastError') {
+                next(new RequestError('Ошибка при удалении Movie. Невалидный id.'));
+              } else {
+                next(err);
+              }
+            });
+        }
+        throw new NotFoundError('Ошибка при удалении Movie. Карточка создана другим пользователем');
       }
       throw new NotFoundError('Ошибка при удалении Movie. Нет Movie с таким id');
     })
