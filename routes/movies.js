@@ -20,13 +20,13 @@ router.post('/movies', celebrate({
     nameRU: Joi.string().required().min(2).max(30),
     nameEN: Joi.string().required().min(2).max(30),
     thumbnail: Joi.required().custom((e) => validation(e, 'Не верная ссылка на thumbnail')),
-    movieId: Joi.string().length(24).required().hex()
+    movieId: Joi.number(),
   }),
 }), createMovie);
 
 router.delete('/movies/:movieId', celebrate({
   params: Joi.object().keys({
-    movieId: Joi.string().length(24).required().hex(),
+    movieId: Joi.number(),
   }),
 
 }), delMovie);

@@ -7,14 +7,13 @@ const movieSchema = new mongoose.Schema({
     ref: 'user',
     required: true,
   },
-
   country: { // страна создания фильма. Обязательное поле-строка.:
     type: String,
     required: true,
     minlength: 2,
     maxlength: 100,
   },
-   director: { // режиссёр фильма. Обязательное поле-строка.:
+  director: { // режиссёр фильма. Обязательное поле-строка.:
     type: String,
     required: true,
     minlength: 2,
@@ -28,7 +27,7 @@ const movieSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
- description: { // описание фильма. Обязательное поле-строка.:
+  description: { // описание фильма. Обязательное поле-строка.:
     type: String,
     required: true,
     minlength: 2,
@@ -45,7 +44,7 @@ const movieSchema = new mongoose.Schema({
       message: (props) => `${props.value} is not a valid link!`,
     },
   },
- trailer: { // ссылка на трейлер фильма. Обязательное поле-строка. URL-адресом.
+  trailer: { // ссылка на трейлер фильма. Обязательное поле-строка. URL-адресом.
     type: String, //  — это строка
     required: true,
     validate: {
@@ -67,16 +66,9 @@ const movieSchema = new mongoose.Schema({
       message: (props) => `${props.value} is not a valid link!`,
     },
   },
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'user',
-    required: true,
-  },
   movieId: { // id фильма, который содержится в ответе сервиса MoviesExplorer. Обязательное поле.
-    type: String,
+    type: Number,
     required: true,
-    minlength: 2,
-    maxlength: 100,
   },
   nameRU: { // название фильма на русском языке. Обязательное поле-строка.
     type: String,

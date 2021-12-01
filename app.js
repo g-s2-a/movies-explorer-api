@@ -8,12 +8,12 @@ const auth = require('./middlewares/auth');
 const cors = require('./middlewares/cors');
 const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const validation = require('./methods/validation');
+const { MONGO_URL } = require('./settings/environment-variables');
 
 const PORT = 4000;
 const app = express();
 
-mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
+mongoose.connect(MONGO_URL, {
   useNewUrlParser: true,
 });
 
@@ -31,7 +31,7 @@ app.get('/crash-test', () => {
 });
 
 // роуты, не требующие авторизации, регистрация и логин
-//# создаёт пользователя с переданными в теле email, password и name
+// # создаёт пользователя с переданными в теле email, password и name
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -62,7 +62,6 @@ app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate
 
-// eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res
@@ -73,7 +72,7 @@ app.use((err, req, res, next) => {
         ? 'На сервере произошла ошибка'
         : message,
     });
+  next();
 });
 
-// eslint-disable-next-line no-console
 app.listen(PORT, () => { console.log('Сервер работает - MOVIES'); });

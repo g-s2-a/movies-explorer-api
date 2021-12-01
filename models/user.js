@@ -22,7 +22,7 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.statics.findUser = function (email, password) {
+userSchema.statics.findUser = function findUsr(email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {

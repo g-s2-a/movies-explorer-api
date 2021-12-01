@@ -5,6 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 const RequestError = require('../errors/request-err');
 const AuthorizeError = require('../errors/authorize-err');
 const DoubleError = require('../errors/double-err');
+const { JWT_SECRET } = require('../settings/environment-variables');
 
 const getUsers = (req, res, next) => User.find({})
   .then((users) => res.status(200).send(users))
@@ -93,7 +94,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUser(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.status(200).send({ token });
     })
     .catch(() => {
@@ -101,28 +102,31 @@ const login = (req, res, next) => {
     });
 };
 
-// eslint-disable-next-line max-len
-const updateUser = (req, res, next) => User.findByIdAndUpdate(req.user._id, { name: req.body.name }, { new: true, runValidators: true })
-  .then((user) => {
-    if (user) {
-      return res.status(200).send(user);
-    }
-    throw new NotFoundError('Ошибка при обновлении пользователя. Нет пользователя с таким id');
-  })
-  .catch((err) => {
-    if (err.name === 'CastError') {
-      next(new RequestError('Ошибка при обновлении пользователя. Невалидный id.'));
-    } else if (err.name === 'ValidationError') {
-      next(new RequestError('Ошибка валидации при обновлении пользователя'));
-    } else {
-      next(err);
-    }
-  });
+const updateUser = (req, res, next) => {
+  User.findByIdAndUpdate(req.user._id, { name: req.body.name }, { new: true, runValidators: true })
+    .then((user) => {
+      if (user) {
+        return res.status(200).send(user);
+      }
+      throw new NotFoundError('Ошибка при обновлении пользователя. Нет пользователя с таким id');
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new RequestError('Ошибка при обновлении пользователя. Невалидный id.'));
+      } else if (err.name === 'ValidationError') {
+        next(new RequestError('Ошибка валидации при обновлении пользователя'));
+      } else {
+        next(err);
+      }
+    });
+};
 
-// eslint-disable-next-line max-len
 const updateAvatarUser = (req, res, next) => {
-  // eslint-disable-next-line max-len
-  User.findByIdAndUpdate(req.user._id, { avatar: req.body.avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar: req.body.avatar },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (user) {
         return res.status(200).send(user);

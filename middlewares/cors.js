@@ -8,8 +8,7 @@ const allowedCors = [
   'http://localhost:4000',
 ];
 
-// eslint-disable-next-line consistent-return
-module.exports = (req, res, next) => {
+const check = (req, res, next) => {
   const { origin } = req.headers; // Сохраняем источник запроса в переменную origin
   // проверяем, что источник запроса есть среди разрешённых
   if (allowedCors.includes(origin)) {
@@ -28,9 +27,10 @@ module.exports = (req, res, next) => {
       res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
       // разрешаем кросс-доменные запросы с этими заголовками
       res.header('Access-Control-Allow-Headers', requestHeaders);
-      return res.end();
+      res.status(200);
     }
   }
-
   next();
 };
+
+module.exports = check;
