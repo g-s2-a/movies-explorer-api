@@ -6,6 +6,9 @@ const RequestError = require('../errors/request-err');
 const AuthorizeError = require('../errors/authorize-err');
 const DoubleError = require('../errors/double-err');
 const { JWT_SECRET } = require('../settings/environment-variables');
+const {
+  INVALID_ID, VALIDATION_ERROR, DOUBLE, NOT_FILLING, REGISTRATION_ERROR, AUTHENTICATION_ERROR,
+} = require('../settings/const');
 
 const getUsers = (req, res, next) => User.find({})
   .then((users) => res.status(200).send(users))
@@ -21,30 +24,11 @@ const getUser = (req, res, next) => {
       if (user) {
         return res.status(200).send(user);
       }
-      throw new NotFoundError('Нет пользователя с таким id');
+      throw new NotFoundError(INVALID_ID);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new RequestError('Ошибка в id пользователя'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const getUserId = (req, res, next) => {
-  const { id } = req.params;
-
-  return User.findById(id)
-    .then((user) => {
-      if (user) {
-        return res.status(200).send(user);
-      }
-      throw new NotFoundError('Нет пользователя с таким id');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new RequestError('Ошибка в id пользователя'));
+        next(new RequestError(INVALID_ID));
       } else {
         next(err);
       }
@@ -56,13 +40,13 @@ const createUser = (req, res, next) => {
     name, email, password,
   } = req.body;
   if (!email || !password) {
-    throw new RequestError('Не указан пользователь, или пароль');
+    throw new RequestError(NOT_FILLING);
   }
 
   return User.findOne({ email })
     .then((user) => {
       if (user) { // пользователь найден
-        throw new DoubleError('Пользователь с таким email уже зарегистрирован');
+        throw new DoubleError(DOUBLE);
       }
       return bcrypt.hash(password, 10);
     })
@@ -77,7 +61,7 @@ const createUser = (req, res, next) => {
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            next(new NotFoundError('Ошибка при создании пользователя - не корректные данные'));
+            next(new NotFoundError(VALIDATION_ERROR));
           }
         });
     })
@@ -85,7 +69,7 @@ const createUser = (req, res, next) => {
       if (err.statusCode) {
         next(err);
       } else {
-        next(new AuthorizeError('Ошибка регистрации'));
+        next(new AuthorizeError(REGISTRATION_ERROR));
       }
     });
 };
@@ -98,51 +82,36 @@ const login = (req, res, next) => {
       res.status(200).send({ token });
     })
     .catch(() => {
-      next(new AuthorizeError('Ошибка аутентификации'));
+      next(new AuthorizeError(AUTHENTICATION_ERROR));
     });
 };
 
 const updateUser = (req, res, next) => {
-  User.findByIdAndUpdate(req.user._id, { name: req.body.name }, { new: true, runValidators: true })
-    .then((user) => {
-      if (user) {
-        return res.status(200).send(user);
-      }
-      throw new NotFoundError('Ошибка при обновлении пользователя. Нет пользователя с таким id');
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new RequestError('Ошибка при обновлении пользователя. Невалидный id.'));
-      } else if (err.name === 'ValidationError') {
-        next(new RequestError('Ошибка валидации при обновлении пользователя'));
-      } else {
-        next(err);
-      }
-    });
-};
-
-const updateAvatarUser = (req, res, next) => {
+  const { name, email } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
-    { avatar: req.body.avatar },
+    { name, email },
     { new: true, runValidators: true },
   )
     .then((user) => {
       if (user) {
         return res.status(200).send(user);
       }
-      throw new NotFoundError('Ошибка при обновлении аватара пользователя. Нет пользователя с таким id');
+      throw new NotFoundError(INVALID_ID);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new RequestError('Ошибка при обновлении аватара. Невалидный id.'));
+        next(new RequestError(INVALID_ID));
       } else if (err.name === 'ValidationError') {
-        next(new RequestError('Ошибка валидации при обновлении аватара'));
+        next(new RequestError(VALIDATION_ERROR));
+      } else if (err.code === 11000) {
+        next(new DoubleError(DOUBLE));
       } else {
         next(err);
       }
     });
 };
+
 module.exports = {
-  getUsers, getUser, getUserId, createUser, updateUser, updateAvatarUser, login,
+  getUsers, getUser, createUser, updateUser, login,
 };

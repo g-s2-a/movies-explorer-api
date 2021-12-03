@@ -1,14 +1,14 @@
 const express = require('express');
+const helmet = require('helmet');
 const mongoose = require('mongoose');
-const { errors, celebrate, Joi } = require('celebrate');
-const users = require('./routes/users');
-const movies = require('./routes/movies');
-const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+const { errors } = require('celebrate');
+const routes = require('./routes/index');
 const cors = require('./middlewares/cors');
 const NotFoundError = require('./errors/not-found-err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { MONGO_URL } = require('./settings/environment-variables');
+const limiter = require('./methods/limit');
+const { WRONG_WAY } = require('./settings/const');
 
 const PORT = 4000;
 const app = express();
@@ -20,44 +20,19 @@ mongoose.connect(MONGO_URL, {
 app.use(requestLogger); // подключаем логгер запросов
 app.use(express.json());
 
+// устанавливаем заголовки безопасности
+app.use(helmet());
+
 // CORS-запросы
 app.use(cors);
 
-// !!! УДАЛИТЬ после прохождения ревью
-app.get('/crash-test', () => {
-  setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
-  }, 0);
-});
-
-// роуты, не требующие авторизации, регистрация и логин
-// # создаёт пользователя с переданными в теле email, password и name
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-    name: Joi.string().min(2).max(30),
-  }),
-}), createUser);
-
-// проверяет переданные в теле почту и пароль и возвращает JWT
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-}), login);
-
-// авторизация
-app.use(auth);
-
-app.use(users);
-app.use(movies);
+app.use(routes);
 
 app.use((req, res, next) => {
-  next(new NotFoundError('Err 404. Нет такой страницы!'));
+  next(new NotFoundError(WRONG_WAY));
 });
 
+app.use(limiter);
 app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate

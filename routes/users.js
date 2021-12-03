@@ -7,8 +7,8 @@ const {
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(30),
-    email: Joi.string().email(),
+    name: Joi.string().required().min(2).max(100),
+    email: Joi.string().required().email(),
     password: Joi.string().required().min(2).max(100),
   }),
 }), updateUser); // — обновляет профиль

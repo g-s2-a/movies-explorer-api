@@ -1,44 +1,31 @@
 const Movie = require('../models/movie');
 const NotFoundError = require('../errors/not-found-err');
 const RequestError = require('../errors/request-err');
+const ForbiddenError = require('../errors/forbidden-err');
+const { INVALID_ID, FORBIDDEN, VALIDATION_ERROR } = require('../settings/const');
 
-const getMovies = (req, res, next) => Movie.find({})
+const getMovies = (req, res, next) => Movie.find({ owner: req.user._id })
   .then((movies) => res.status(200).send(movies))
   .catch((err) => {
     next(err);
   });
 
 const delMovie = (req, res, next) => {
-  const { movieId } = req.params;
-  Movie.find({ movieId })
+  const { id } = req.params;
+  return Movie.findById(id)
     .then((movie1) => {
       if (movie1) {
-        if (movie1[0].owner.toString() === req.user._id) {
-          return Movie.findByIdAndRemove(movie1[0]._id.toString())
-            .then((movie2) => {
-              if (movie2) {
-                return res.status(200).send(movie2);
-              }
-              throw new NotFoundError('Ошибка при удалении Movie. Нет карточки с таким id');
-            })
-            .catch((err) => {
-              if (err.name === 'CastError') {
-                next(new RequestError('Ошибка при удалении Movie. Невалидный id.'));
-              } else {
-                next(err);
-              }
-            });
+        if (movie1.owner._id.toString() === req.user._id) {
+          return Movie.findByIdAndRemove(id)
+            .then((movie2) => res.status(200).send(movie2));
         }
-        throw new NotFoundError('Ошибка при удалении Movie. Карточка создана другим пользователем');
+        throw new ForbiddenError(FORBIDDEN);
+      } else {
+        throw new NotFoundError(INVALID_ID);
       }
-      throw new NotFoundError('Ошибка при удалении Movie. Нет Movie с таким id');
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new RequestError('Ошибка при удалении Movie. Невалидный movieId.'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
@@ -59,7 +46,7 @@ const createMovie = (req, res, next) => Movie.create({
   .then((movie) => res.status(200).send(movie))
   .catch((err) => {
     if (err.name === 'ValidationError') {
-      next(new RequestError('Некорректные данные'));
+      next(new RequestError(VALIDATION_ERROR));
     } else {
       next(err);
     }
