@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
 const cors = require('./middlewares/cors');
-const NotFoundError = require('./errors/not-found-err');
+const { NotFoundError } = require('./errors/index');
+
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const { MONGO_URL } = require('./settings/environment-variables');
 const limiter = require('./methods/limit');

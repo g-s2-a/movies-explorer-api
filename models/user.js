@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const { isEmail } = require('validator');
 const { ERROR_EMAIL_PASS } = require('../settings/const');
-const AuthorizeError = require('../errors/authorize-err');
+const { AuthorizeError } = require('../errors/index');
 
 const userSchema = new mongoose.Schema({
   name: { // у пользователя есть имя — опишем требования к имени в схеме:

@@ -1,8 +1,8 @@
 const Movie = require('../models/movie');
-const NotFoundError = require('../errors/not-found-err');
-const RequestError = require('../errors/request-err');
-const ForbiddenError = require('../errors/forbidden-err');
 const { INVALID_ID, FORBIDDEN, VALIDATION_ERROR } = require('../settings/const');
+const {
+  ForbiddenError, RequestError, NotFoundError,
+} = require('../errors/index');
 
 const getMovies = (req, res, next) => Movie.find({ owner: req.user._id })
   .then((movies) => res.status(200).send(movies))

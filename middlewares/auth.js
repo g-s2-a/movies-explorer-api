@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const AuthorizeError = require('../errors/authorize-err');
+const { AuthorizeError } = require('../errors/index');
 const { JWT_SECRET } = require('../settings/environment-variables');
 const { AUTHORIZATION_REQUIRED, AUTHORIZATION_ERROR } = require('../settings/const');
 

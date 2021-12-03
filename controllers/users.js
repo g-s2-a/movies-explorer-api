@@ -1,14 +1,13 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const NotFoundError = require('../errors/not-found-err');
-const RequestError = require('../errors/request-err');
-const AuthorizeError = require('../errors/authorize-err');
-const DoubleError = require('../errors/double-err');
 const { JWT_SECRET } = require('../settings/environment-variables');
 const {
   INVALID_ID, VALIDATION_ERROR, DOUBLE, NOT_FILLING, REGISTRATION_ERROR, AUTHENTICATION_ERROR,
 } = require('../settings/const');
+const {
+  AuthorizeError, RequestError, NotFoundError, DoubleError,
+} = require('../errors/index');
 
 const getUsers = (req, res, next) => User.find({})
   .then((users) => res.status(200).send(users))
