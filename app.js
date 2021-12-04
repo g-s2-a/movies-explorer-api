@@ -19,11 +19,11 @@ mongoose.connect(MONGO_URL, {
 });
 
 app.use(requestLogger); // подключаем логгер запросов
-app.use(express.json());
-
+app.use(limiter);
 // устанавливаем заголовки безопасности
 app.use(helmet());
 
+app.use(express.json());
 // CORS-запросы
 app.use(cors);
 
@@ -33,7 +33,6 @@ app.use((req, res, next) => {
   next(new NotFoundError(WRONG_WAY));
 });
 
-app.use(limiter);
 app.use(errorLogger); // подключаем логгер ошибок
 
 app.use(errors()); // обработчик ошибок celebrate

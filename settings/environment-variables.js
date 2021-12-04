@@ -5,7 +5,7 @@ const {
 } = process.env;
 
 const DEV_JWT_SECRET = 'JWT_SECRET1';
-const DEV_MONGO_URL = 'mongodb://localhost:27017/bitfilmsdb';
+const DEV_MONGO_URL = 'mongodb://localhost:27017/moviesdb';
 
 const MONGO_URL_CURRENT = NODE_ENV === 'production' && MONGO_URL ? MONGO_URL : DEV_MONGO_URL;
 const JWT_SECRET_CURRENT = NODE_ENV === 'production' && JWT_SECRET ? JWT_SECRET : DEV_JWT_SECRET;
