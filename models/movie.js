@@ -17,7 +17,7 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 2,
-    maxlength: 100,
+    maxlength: 200,
   },
   year: { // длительность фильма. Обязательное поле-число:
     type: Number,
@@ -31,7 +31,6 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 2,
-    maxlength: 100,
   },
   image: { // ссылка на постер к фильму. Обязательное поле-строка. URL-адресом.
     type: String, //  — это строка
@@ -74,13 +73,13 @@ const movieSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 2,
-    maxlength: 100,
+    maxlength: 200,
   },
   nameEN: { // название фильма на английском языке. Обязательное поле-строка.
     type: String,
     required: true,
     minlength: 2,
-    maxlength: 100,
+    maxlength: 200,
   },
 });
 

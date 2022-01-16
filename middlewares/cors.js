@@ -1,9 +1,9 @@
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
-  'https://domainname0.nomoredomains.rocks',
-  'https://domainname1.nomoredomains.rocks',
-  'http://domainname0.nomoredomains.rocks',
-  'http://domainname1.nomoredomains.rocks',
+  'https://domainnamef0.nomoredomains.rocks',
+  'https://domainnamef1.nomoredomains.rocks',
+  'http://domainnamef0.nomoredomains.rocks',
+  'http://domainnamef1.nomoredomains.rocks',
   'http://localhost:3000',
   'http://localhost:4000',
 ];
@@ -13,7 +13,8 @@ const check = (req, res, next) => {
   // проверяем, что источник запроса есть среди разрешённых
   if (allowedCors.includes(origin)) {
   // устанавливаем заголовок, который разрешает браузеру запросы с этого источника
-    res.header('Access-Control-Allow-Origin', origin);
+    // res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Origin', '*');
 
     const { method } = req; // Сохраняем тип запроса (HTTP-метод) в соответствующую переменную
 

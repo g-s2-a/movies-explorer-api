@@ -1,9 +1,11 @@
 const express = require('express');
+const cors = require('cors');
 const helmet = require('helmet');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const routes = require('./routes/index');
-const cors = require('./middlewares/cors');
+// const cors = require('./middlewares/cors');
+
 const { NotFoundError } = require('./errors/index');
 
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -25,7 +27,8 @@ app.use(helmet());
 
 app.use(express.json());
 // CORS-запросы
-app.use(cors);
+
+app.use(cors());
 
 app.use(routes);
 

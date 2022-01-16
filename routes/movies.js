@@ -10,15 +10,15 @@ router.get('/movies', getMovies);
 
 router.post('/movies', celebrate({
   body: Joi.object().keys({
-    country: Joi.string().required().min(2).max(30),
-    director: Joi.string().required().min(2).max(30),
+    country: Joi.string().required().min(2).max(100),
+    director: Joi.string().required().min(2).max(200),
     year: Joi.number(),
     duration: Joi.number(),
-    description: Joi.string().required().min(2).max(100),
+    description: Joi.string().required().min(2),
     image: Joi.required().custom((e) => validation(e, 'Не верная ссылка на изображение')),
     trailer: Joi.required().custom((e) => validation(e, 'Не верная ссылка на trailer')),
-    nameRU: Joi.string().required().min(2).max(30),
-    nameEN: Joi.string().required().min(2).max(30),
+    nameRU: Joi.string().required().min(2).max(200),
+    nameEN: Joi.string().required().min(2).max(200),
     thumbnail: Joi.required().custom((e) => validation(e, 'Не верная ссылка на thumbnail')),
     movieId: Joi.number(),
   }),
